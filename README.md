@@ -1,4 +1,4 @@
-# CSHARP_MYSQL_EF_POMELO
+# CSHARP-MYSQL-EF-POMELO
 C# - Accessing MySQL using Entity Framework Core and Pomelo provider.
 
 It is a simple sample to show how to use the Pomelo provider for .NET Entity Framework Core and access a MySQL database using the Database First approach. 
@@ -52,9 +52,52 @@ dotnet build
 ```
 
 ### 4.Scaffolding the database
-Finally we are able to create the scaffold based on the database schema:
+Now we are able to create the scaffold based on the database schema:
 
 _Remember to change the uppercase placeholders by its correct data: __```SERVER_ADDRESS```__,__```DATABASE_NAME```__, __```DATABASE_USER```__ and __```USER_PASSWORD```___.
 ```
 dotnet ef dbcontext scaffold "Server=SERVER_ADDRESS;Database=DATABASE_NAME;User=DATABASE_USER;Password=USER_PASSWORD;" "Pomelo.EntityFrameworkCore.MySql"
 ```
+
+### 5.Change the console application source code to access the database using the EF Core
+Change the content of the __program.cs__ file of the project to the code below:
+
+```
+using System;
+using Microsoft.EntityFrameworkCore;
+
+namespace com.mynamespace
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            using (var db = new sampledbContext())
+            {
+                //Add a new entrie to the database
+                db.Employees.Add(new Employees { Firstname = "Daenerys", Lastname = "Targaryen", Birthdate = DateTime.Parse("01/01/2000") });
+                var count = db.SaveChanges();
+                Console.WriteLine("{0} records saved to database", count);
+
+                //Read entire Employees table including its addressess 
+                var Employees = db.Employees.Include(x => x.Addresses);
+
+                Console.WriteLine("\nAll employees in database:\n");
+                foreach (var employee in Employees)
+                {
+                    Console.WriteLine($"{employee.Idemployees} - {employee.Firstname} {employee.Lastname}: {employee.Birthdate}");
+
+                    foreach (var address in employee.Addresses)
+                    {
+                        Console.WriteLine($"\t{address.Idaddresses} - {address.Number} - {address.Street} - {address.City} - {address.State} - {address.Country}");
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+### 6.Run the demo code
+Finally we are able to run the code an see the result, to do that run the command below in the root of the C# project folder:
+```dotnet run```
